@@ -1,4 +1,4 @@
-package way
+package away
 
 import (
 	"context"

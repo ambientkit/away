@@ -1,5 +1,8 @@
-# Way
-HTTP router for Go 1.7
+# Away
+
+Away (meaning Ambient Way) is a fork of the [Way](https://github.com/matryer/way) router that adds the ability to remove routes.
+
+HTTP router for Go
 
 * Deliberately simple
 * Extremely fast
@@ -12,13 +15,13 @@ HTTP router for Go 1.7
 There's no need to add a dependency to Way, just copy `way.go` and `way_test.go` into your project, or [drop](https://github.com/matryer/drop) them in:
 
 ```
-drop github.com/matryer/way
+drop github.com/ambientkit/away
 ```
 
 If you prefer, it is go gettable:
 
 ```
-go get github.com/matryer/way
+go get github.com/ambientkit/away
 ```
 
 ## Usage

@@ -1,10 +1,15 @@
-package away
+package away_test
 
 import (
 	"context"
 	"net/http"
 	"net/http/httptest"
+	"sort"
+	"strings"
 	"testing"
+
+	"github.com/ambientkit/away"
+	"github.com/stretchr/testify/assert"
 )
 
 var tests = []struct {
@@ -148,7 +153,7 @@ var tests = []struct {
 
 func TestWay(t *testing.T) {
 	for _, test := range tests {
-		r := NewRouter()
+		r := away.NewRouter()
 		match := false
 		var ctx context.Context
 		r.Handle(test.RouteMethod, test.RoutePattern, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -167,7 +172,7 @@ func TestWay(t *testing.T) {
 		if len(test.Params) > 0 {
 			for expK, expV := range test.Params {
 				// check using helper
-				actualValStr := Param(ctx, expK)
+				actualValStr := away.Param(ctx, expK)
 				if actualValStr != expV {
 					t.Errorf("Param: context value %s expected \"%s\" but was \"%s\"", expK, expV, actualValStr)
 				}
@@ -177,7 +182,7 @@ func TestWay(t *testing.T) {
 }
 
 func TestMultipleRoutesDifferentMethods(t *testing.T) {
-	r := NewRouter()
+	r := away.NewRouter()
 	var match string
 	r.Handle(http.MethodGet, "/route", http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		match = "GET /route"
@@ -216,4 +221,85 @@ func TestMultipleRoutesDifferentMethods(t *testing.T) {
 		t.Errorf("unexpected: %s", match)
 	}
 
+}
+
+type route struct {
+	pattern string
+	method  string
+	segs    []string
+	handler http.Handler
+	prefix  bool
+}
+
+type routeList []route
+
+func (s routeList) Len() int {
+	return len(s)
+}
+
+func (s routeList) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+
+func (s routeList) Less(i, j int) bool {
+	var si string = s[i].pattern
+	var sj string = s[j].pattern
+	var siLower = strings.ToLower(si)
+	var sjLower = strings.ToLower(sj)
+	if strings.HasPrefix(sjLower, "/:") {
+		return true
+	} else if strings.HasPrefix(siLower, "/:") {
+		return false
+	} else if strings.Contains(sjLower, ":") && !strings.Contains(siLower, ":") {
+		return true
+	} else if !strings.Contains(sjLower, ":") && strings.Contains(siLower, ":") {
+		return false
+	}
+
+	if siLower == sjLower {
+		return si < sj
+	}
+	return siLower < sjLower
+}
+
+func TestAway(t *testing.T) {
+	var arr routeList = []route{
+		{
+			method:  "GET",
+			pattern: "/:slug",
+		},
+		{
+			method:  "GET",
+			pattern: "/",
+		},
+		{
+			method:  "GET",
+			pattern: "/cool/balloon",
+		},
+		{
+			method:  "GET",
+			pattern: "/cool/:slug",
+		},
+		{
+			method:  "GET",
+			pattern: "/cool/another",
+		},
+		{
+			method:  "GET",
+			pattern: "/rss/:ok",
+		},
+		{
+			method:  "GET",
+			pattern: "/cool",
+		},
+		{
+			method:  "GET",
+			pattern: "/rss.xml",
+		},
+	}
+
+	assert.Equal(t, arr[0].pattern, "/:slug")
+	sort.Sort(arr)
+	assert.Equal(t, arr[0].pattern, "/")
+	assert.Equal(t, arr[len(arr)-1].pattern, "/:slug")
 }

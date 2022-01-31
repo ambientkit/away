@@ -1,13 +1,13 @@
 # Away
 
-Away (meaning Ambient Way) is a fork of the [Way](https://github.com/matryer/way) router that adds the ability to remove routes.
+Away (meaning Ambient Way) is a fork of the [Way](https://github.com/matryer/way) router that adds the ability to remove routes, adds sorting, and supports braces around parameters instead of a colon.
 
 HTTP router for Go
 
 * Deliberately simple
 * Extremely fast
 * Route based on HTTP methods and path
-* Path parameters via `Context` (e.g. `/music/:band/:song`)
+* Path parameters via `Context` (e.g. `/music/{band}/{song}`)
 * Trailing `/` matches path prefixes
 
 ## Install

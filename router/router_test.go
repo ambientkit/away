@@ -31,28 +31,38 @@ func TestParams(t *testing.T) {
 	mux := New()
 	mux.SetServeHTTP(defaultServeHTTP)
 
-	mux.Get("/user/:name", func(w http.ResponseWriter, r *http.Request) (status int, err error) {
-		assert.Equal(t, "john", mux.Param(r, "name"))
+	outParam := ""
+	mux.Get("/user/{name}", func(w http.ResponseWriter, r *http.Request) (status int, err error) {
+		outParam = mux.Param(r, "name")
 		return http.StatusOK, nil
 	})
 
 	r := httptest.NewRequest("GET", "/user/john", nil)
 	w := httptest.NewRecorder()
 	mux.ServeHTTP(w, r)
+	resp := w.Result()
+
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	assert.Equal(t, "john", outParam)
 }
 
 func TestInstance(t *testing.T) {
 	mux := New()
 	mux.SetServeHTTP(defaultServeHTTP)
 
-	mux.Get("/user/:name", func(w http.ResponseWriter, r *http.Request) (status int, err error) {
-		assert.Equal(t, "john", mux.Param(r, "name"))
+	outParam := ""
+	mux.Get("/user/{name}", func(w http.ResponseWriter, r *http.Request) (status int, err error) {
+		outParam = mux.Param(r, "name")
 		return http.StatusOK, nil
 	})
 
 	r := httptest.NewRequest("GET", "/user/john", nil)
 	w := httptest.NewRecorder()
 	mux.ServeHTTP(w, r)
+	resp := w.Result()
+
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	assert.Equal(t, "john", outParam)
 }
 
 func TestPostForm(t *testing.T) {
@@ -62,9 +72,10 @@ func TestPostForm(t *testing.T) {
 	form := url.Values{}
 	form.Add("username", "jsmith")
 
+	outParam := ""
 	mux.Post("/user", func(w http.ResponseWriter, r *http.Request) (status int, err error) {
 		r.ParseForm()
-		assert.Equal(t, "jsmith", r.FormValue("username"))
+		outParam = r.FormValue("username")
 		return http.StatusOK, nil
 	})
 
@@ -72,6 +83,10 @@ func TestPostForm(t *testing.T) {
 	r.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	w := httptest.NewRecorder()
 	mux.ServeHTTP(w, r)
+	resp := w.Result()
+
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	assert.Equal(t, "jsmith", outParam)
 }
 
 func TestPostJSON(t *testing.T) {
@@ -83,10 +98,12 @@ func TestPostJSON(t *testing.T) {
 	})
 	assert.Nil(t, err)
 
+	outParam := ""
 	mux.Post("/user", func(w http.ResponseWriter, r *http.Request) (status int, err error) {
 		b, err := ioutil.ReadAll(r.Body)
 		assert.Nil(t, err)
 		r.Body.Close()
+		outParam = string(b)
 		assert.Equal(t, `{"username":"jsmith"}`, string(b))
 		return http.StatusOK, nil
 	})
@@ -95,6 +112,10 @@ func TestPostJSON(t *testing.T) {
 	r.Header.Set("Content-Type", "application/json")
 	w := httptest.NewRecorder()
 	mux.ServeHTTP(w, r)
+	resp := w.Result()
+
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	assert.Equal(t, `{"username":"jsmith"}`, outParam)
 }
 
 func TestGet(t *testing.T) {

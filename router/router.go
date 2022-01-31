@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/ambientkit/away"
+	"github.com/ambientkit/away/paramconvert"
 )
 
 // Mux contains the router.
@@ -36,7 +37,7 @@ func (m *Mux) SetNotFound(notFound http.Handler) {
 
 // Clear will remove a method and path from the router.
 func (m *Mux) Clear(method string, path string) {
-	m.router.Remove(method, path)
+	m.router.Remove(method, paramconvert.BraceToColon(path))
 }
 
 // Count will return the number of routes from the router.

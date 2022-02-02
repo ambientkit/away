@@ -323,3 +323,32 @@ func TestBadRequest(t *testing.T) {
 
 	assert.Equal(t, http.StatusBadRequest, w.Code)
 }
+
+func TestClear(t *testing.T) {
+	mux := New()
+	mux.SetServeHTTP(defaultServeHTTP)
+
+	called := false
+
+	mux.Get("/user", func(w http.ResponseWriter, r *http.Request) (status int, err error) {
+		called = true
+		return http.StatusOK, nil
+	})
+
+	r := httptest.NewRequest("GET", "/user", nil)
+	w := httptest.NewRecorder()
+	mux.ServeHTTP(w, r)
+	resp := w.Result()
+	assert.Equal(t, http.StatusOK, resp.StatusCode)
+	assert.True(t, called)
+
+	called = false
+	mux.Clear("GET", "/user")
+
+	r = httptest.NewRequest("GET", "/user", nil)
+	w = httptest.NewRecorder()
+	mux.ServeHTTP(w, r)
+	resp = w.Result()
+	assert.Equal(t, http.StatusNotFound, resp.StatusCode)
+	assert.False(t, called)
+}

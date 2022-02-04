@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/ambientkit/away"
-	"github.com/ambientkit/away/paramconvert"
+	"github.com/ambientkit/away/router/paramconvert"
 )
 
 // Mux contains the router.

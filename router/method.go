@@ -24,6 +24,11 @@ func (m *Mux) Get(path string, fn func(http.ResponseWriter, *http.Request) (int,
 	m.handle(http.MethodGet, path, fn)
 }
 
+// Handle registers a method and pattern with the router.
+func (m *Mux) Handle(method string, path string, fn func(http.ResponseWriter, *http.Request) (int, error)) {
+	m.handle(method, path, fn)
+}
+
 // Head registers a pattern with the router.
 func (m *Mux) Head(path string, fn func(http.ResponseWriter, *http.Request) (int, error)) {
 	m.handle(http.MethodHead, path, fn)

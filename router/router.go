@@ -53,7 +53,14 @@ func (m *Mux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // Error shows error page based on the status code.
 func (m *Mux) Error(status int, w http.ResponseWriter, r *http.Request) {
-	m.customServeHTTP(w, r, status, nil)
+	if m.customServeHTTP != nil {
+		m.customServeHTTP(w, r, status, nil)
+		return
+	}
+
+	if status >= 400 {
+		http.Error(w, http.StatusText(status), status)
+	}
 }
 
 // Param returns a URL parameter.

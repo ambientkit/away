@@ -58,9 +58,7 @@ func (m *Mux) Error(status int, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if status >= 400 {
-		http.Error(w, http.StatusText(status), status)
-	}
+	http.Error(w, http.StatusText(status), status)
 }
 
 // Param returns a URL parameter.

@@ -67,8 +67,8 @@ func (m *Mux) Param(r *http.Request, param string) string {
 }
 
 // Wrap a standard http handler so it can be used easily.
-func (m *Mux) Wrap(handler http.HandlerFunc) func(w http.ResponseWriter, r *http.Request) (status int, err error) {
-	return func(w http.ResponseWriter, r *http.Request) (status int, err error) {
+func (m *Mux) Wrap(handler http.HandlerFunc) func(w http.ResponseWriter, r *http.Request) (err error) {
+	return func(w http.ResponseWriter, r *http.Request) (err error) {
 		handler.ServeHTTP(w, r)
 		return
 	}

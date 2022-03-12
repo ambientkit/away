@@ -51,6 +51,11 @@ func (m *Mux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	m.router.ServeHTTP(w, r)
 }
 
+// StatusError returns error with a status code.
+func (m *Mux) StatusError(status int, err error) error {
+	return StatusError{Code: status, Err: err}
+}
+
 // Error shows error page based on the status code.
 func (m *Mux) Error(status int, w http.ResponseWriter, r *http.Request) {
 	if m.customServeHTTP != nil {

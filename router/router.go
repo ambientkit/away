@@ -13,7 +13,7 @@ type Mux struct {
 	router *away.Router
 
 	// customServeHTTP is the serve function.
-	customServeHTTP func(w http.ResponseWriter, r *http.Request, status int, err error)
+	customServeHTTP func(w http.ResponseWriter, r *http.Request, err error)
 }
 
 // New returns an instance of the router.
@@ -26,7 +26,7 @@ func New() *Mux {
 }
 
 // SetServeHTTP sets the ServeHTTP function.
-func (m *Mux) SetServeHTTP(csh func(w http.ResponseWriter, r *http.Request, status int, err error)) {
+func (m *Mux) SetServeHTTP(csh func(w http.ResponseWriter, r *http.Request, err error)) {
 	m.customServeHTTP = csh
 }
 
@@ -54,7 +54,7 @@ func (m *Mux) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 // Error shows error page based on the status code.
 func (m *Mux) Error(status int, w http.ResponseWriter, r *http.Request) {
 	if m.customServeHTTP != nil {
-		m.customServeHTTP(w, r, status, nil)
+		m.customServeHTTP(w, r, StatusError{status, nil})
 		return
 	}
 
@@ -72,4 +72,31 @@ func (m *Mux) Wrap(handler http.HandlerFunc) func(w http.ResponseWriter, r *http
 		handler.ServeHTTP(w, r)
 		return
 	}
+}
+
+// Error represents a handler error. It provides methods for a HTTP status
+// code and embeds the built-in error interface.
+type Error interface {
+	error
+	Status() int
+}
+
+// StatusError represents an error with an associated HTTP status code.
+type StatusError struct {
+	Code int
+	Err  error
+}
+
+// Error returns the error.
+func (se StatusError) Error() string {
+	if se.Err != nil {
+		return se.Err.Error()
+	}
+
+	return ""
+}
+
+// Status returns a HTTP status code.
+func (se StatusError) Status() int {
+	return se.Code
 }

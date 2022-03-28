@@ -59,7 +59,7 @@ func (m *Mux) StatusError(status int, err error) error {
 // Error shows error page based on the status code.
 func (m *Mux) Error(status int, w http.ResponseWriter, r *http.Request) {
 	if m.customServeHTTP != nil {
-		m.customServeHTTP(w, r, StatusError{status, nil})
+		m.customServeHTTP(w, r, StatusError{Code: status, Err: nil})
 		return
 	}
 
@@ -84,12 +84,14 @@ func (m *Mux) Wrap(handler http.HandlerFunc) func(w http.ResponseWriter, r *http
 type Error interface {
 	error
 	Status() int
+	Message() string
 }
 
 // StatusError represents an error with an associated HTTP status code.
 type StatusError struct {
-	Code int
-	Err  error
+	Code     int
+	Err      error
+	Friendly string
 }
 
 // Error returns the error.
@@ -104,4 +106,9 @@ func (se StatusError) Error() string {
 // Status returns a HTTP status code.
 func (se StatusError) Status() int {
 	return se.Code
+}
+
+// Message returns a optional user friendly error message.
+func (se StatusError) Message() string {
+	return se.Friendly
 }

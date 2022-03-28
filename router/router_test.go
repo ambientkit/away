@@ -254,7 +254,7 @@ func Test500NoError(t *testing.T) {
 
 	mux.Get("/user", func(w http.ResponseWriter, r *http.Request) (err error) {
 		called = true
-		return StatusError{http.StatusInternalServerError, nil}
+		return StatusError{Code: http.StatusInternalServerError, Err: nil}
 	})
 
 	r := httptest.NewRequest("GET", "/user", nil)
@@ -274,7 +274,7 @@ func Test500WithError(t *testing.T) {
 
 	mux.Get("/user", func(w http.ResponseWriter, r *http.Request) (err error) {
 		called = true
-		return StatusError{http.StatusInternalServerError, specificError}
+		return StatusError{Code: http.StatusInternalServerError, Err: specificError}
 	})
 
 	r := httptest.NewRequest("GET", "/user", nil)
